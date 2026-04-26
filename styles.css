@@ -1,0 +1,620 @@
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #1a1a1a;
+  --ink: #f5f5f5;
+  --muted: #ababab;
+  --brand: #000000;
+  --brand-2: #1f1f1f;
+  --accent: #f5f5f5;
+  --ok: #d6d6d6;
+  --warning: #d6d6d6;
+  --border: #2f2f2f;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Bahnschrift", "Avenir Next", "Trebuchet MS", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 10% 15%, #202020 0%, transparent 35%),
+    radial-gradient(circle at 85% 30%, #171717 0%, transparent 30%),
+    linear-gradient(180deg, #0d0d0d 0%, #070707 100%);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(120deg, #000000 0%, #1a1a1a 100%);
+  color: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+.brand-block h1 {
+  margin: 2px 0 0;
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+}
+
+.brand-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: #f7faff;
+  padding: 3px;
+  display: block;
+}
+
+.brand-kicker {
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pill-offline {
+  background: #212121;
+  color: #f5f5f5;
+}
+
+.pill-online {
+  background: #1f1f1f;
+  color: #f5f5f5;
+}
+
+.app-shell {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 14px;
+}
+
+.install-guidance {
+  border: 1px solid #3a3a3a;
+  border-left: 6px solid #f0f0f0;
+  background: linear-gradient(180deg, #181818 0%, #111111 100%);
+  color: #f0f0f0;
+  padding: 14px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.install-guidance h2 {
+  margin: 0 0 6px;
+  font-size: 1.08rem;
+}
+
+.install-guidance ol {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+}
+
+.guidance-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.banner {
+  border-left: 6px solid #f0f0f0;
+  background: #1a1a1a;
+  color: #f0f0f0;
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  animation: slide-in 300ms ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.hidden {
+  display: none !important;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+  animation: fade-up 260ms ease-out;
+}
+
+@keyframes fade-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.card.narrow {
+  width: min(560px, 100%);
+  margin: 4vh auto 0;
+}
+
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.login-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #f7faff;
+  padding: 8px;
+  box-shadow: 0 10px 22px rgba(12, 45, 87, 0.18);
+}
+
+.muted {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.section-head.tight {
+  margin-bottom: 8px;
+}
+
+.action-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.aircraft-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: linear-gradient(180deg, #181818, #111111);
+}
+
+.aircraft-card h3 {
+  margin: 0 0 6px;
+}
+
+.loc-chip,
+.status-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.loc-chip {
+  background: #232323;
+  color: #f0f0f0;
+}
+
+.status-loc {
+  background: #232323;
+  color: #f0f0f0;
+}
+
+.status-upl {
+  background: #343434;
+  color: #f0f0f0;
+}
+
+.stacked-form {
+  display: grid;
+  gap: 10px;
+}
+
+.two-col {
+  grid-template-columns: 1fr;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.94rem;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-height: 50px;
+  padding: 12px;
+  background: #0f0f0f;
+  color: var(--ink);
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 3px solid rgba(245, 245, 245, 0.15);
+  border-color: #d9d9d9;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.full-span {
+  grid-column: 1 / -1;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  min-height: 52px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #f5f5f5, #d8d8d8);
+  color: #111111;
+}
+
+.btn-light {
+  background: #1f1f1f;
+  color: #f5f5f5;
+  border: 1px solid #3a3a3a;
+}
+
+.btn-accent {
+  background: linear-gradient(120deg, #f5f5f5, #d8d8d8);
+  color: #111111;
+}
+
+.step-strip {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+  overflow-x: auto;
+}
+
+.step-chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #1f1f1f;
+  color: #cfcfcf;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.step-chip.active {
+  background: #f0f0f0;
+  color: #111111;
+}
+
+.split-layout {
+  display: grid;
+  gap: 12px;
+}
+
+.aircraft-subnav {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 12px;
+  flex-wrap: wrap;
+}
+
+.aircraft-subview {
+  display: block;
+}
+
+.aircraft-subview.hidden {
+  display: none;
+}
+
+.aircraft-subview.active-subview {
+  animation: fade-up 200ms ease-out;
+}
+
+.pane {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #151515;
+  padding: 12px;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.snag-list {
+  display: grid;
+  gap: 10px;
+}
+
+.snag-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #111c2f;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.snag-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.snag-head h4 {
+  margin: 0;
+}
+
+.snag-meta {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.media-block {
+  border: 1px dashed #3b3b3b;
+  border-radius: 10px;
+  padding: 10px;
+  background: #121212;
+}
+
+.media-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.media-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.file-label input {
+  margin-top: 4px;
+}
+
+.annotation-controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.media-preview {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.media-item {
+  border: 1px solid #303030;
+  border-radius: 10px;
+  padding: 8px;
+  background: #161616;
+}
+
+.media-item img,
+.media-item video {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.media-caption {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: #c6c6c6;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.empty-state {
+  border: 1px dashed #353535;
+  border-radius: 10px;
+  padding: 14px;
+  color: #c6c6c6;
+  text-align: center;
+}
+
+.annotation-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 8, 16, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  z-index: 50;
+}
+
+.annotation-panel {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  background: #111111;
+  border: 1px solid #353535;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+
+.annotation-toolbar {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  margin-bottom: 10px;
+}
+
+.annotation-tool.is-active {
+  background: #f0f0f0;
+  color: #111111;
+}
+
+#annotationCanvas {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid #3a3a3a;
+  background: #ffffff;
+  touch-action: none;
+}
+
+.camera-video {
+  width: 100%;
+  max-height: 62vh;
+  border-radius: 10px;
+  border: 1px solid #3a3a3a;
+  background: #02080f;
+  object-fit: contain;
+}
+
+.camera-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+@media (min-width: 760px) {
+  .app-shell {
+    padding: 20px;
+  }
+
+  .topbar {
+    padding: 18px 22px;
+  }
+
+  label {
+    font-size: 1rem;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .split-layout {
+    grid-template-columns: 1fr 1.2fr;
+  }
+
+  .filters {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 980px) {
+  .card {
+    padding: 22px;
+  }
+
+  .pane {
+    padding: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    min-height: 56px;
+  }
+
+  textarea {
+    min-height: 136px;
+  }
+
+  .btn {
+    min-height: 56px;
+    padding: 14px 18px;
+  }
+
+  .step-chip {
+    padding: 10px 14px;
+  }
+}

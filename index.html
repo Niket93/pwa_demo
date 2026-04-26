@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111A2B">
+  <title>Burk-E</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <img class="brand-logo" src="assets/icons/Bombardier_symbol_rgb_k.png" alt="Bombardier logo">
+      <span class="brand-kicker">Burk-E</span>
+      <h1>Burk-E Snag Capture System</h1>
+    </div>
+    <div class="status-group">
+      <span id="offlineIndicator" class="pill pill-offline" aria-live="polite">Offline Mode Active</span>
+      <span id="onlineIndicator" class="pill pill-online hidden" aria-live="polite">Online</span>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section id="globalBanner" class="banner hidden" role="status" aria-live="polite"></section>
+    <section id="installGuidance" class="install-guidance hidden" role="note" aria-live="polite">
+      <div>
+        <h2 id="installGuidanceTitle">Install Guidance</h2>
+        <p id="installGuidanceText" class="muted"></p>
+      </div>
+      <ol id="installGuidanceSteps"></ol>
+      <div class="guidance-actions">
+        <button id="dismissInstallGuidanceBtn" class="btn btn-light" type="button">Dismiss</button>
+      </div>
+    </section>
+
+    <section id="view-login" class="view active" data-view>
+      <div class="card narrow">
+        <div class="login-logo-wrap">
+          <img class="login-logo" src="assets/icons/Bombardier_symbol_rgb_k.png" alt="Bombardier logo">
+        </div>
+        <h2>SSO Login</h2>
+        <p class="muted">Continue with SSO to access Burk-E.</p>
+        <form id="loginForm" class="stacked-form">
+          <button class="btn btn-primary" type="submit">Continue with SSO</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="view-dashboard" class="view" data-view>
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h2>Aircraft Overview</h2>
+            <p class="muted" id="welcomeText"></p>
+          </div>
+          <button id="logoutBtn" class="btn btn-light" type="button">Logout</button>
+        </div>
+
+        <div class="action-row">
+          <button id="createAircraftBtn" class="btn btn-primary" type="button">Create New Aircraft</button>
+          <button id="exportDataBtn" class="btn btn-light" type="button">Export Data JSON</button>
+          <button id="importDataBtn" class="btn btn-light" type="button">Import Data JSON</button>
+          <input id="importDataInput" type="file" accept="application/json" class="hidden" aria-hidden="true">
+        </div>
+
+        <div id="aircraftList" class="list-grid"></div>
+      </div>
+    </section>
+
+    <section id="view-context" class="view" data-view>
+      <div class="card">
+        <div class="section-head">
+          <h2>Create / Select Aircraft Context</h2>
+          <button id="contextBackBtn" class="btn btn-light" type="button">Back</button>
+        </div>
+        <p class="muted">Context is locked after saving.</p>
+
+        <form id="contextForm" class="stacked-form two-col">
+          <label>
+            Platform
+            <select id="platformSelect" required></select>
+          </label>
+          <label>
+            Aircraft Number
+            <input id="aircraftNumberInput" type="text" list="aircraftNumberOptions" required placeholder="70250">
+            <datalist id="aircraftNumberOptions"></datalist>
+          </label>
+          <label>
+            Milestone
+            <select id="milestoneSelect" required></select>
+          </label>
+          <label>
+            Area
+            <select id="areaSelect" required></select>
+          </label>
+          <label>
+            Zone
+            <select id="zoneSelect" required></select>
+          </label>
+          <div class="form-actions full-span">
+            <button id="saveContextBtn" class="btn btn-primary" type="submit">Save Context</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="view-aircraft" class="view" data-view>
+      <div class="card">
+        <div class="section-head">
+          <div>
+            <h2 id="aircraftTitle">Aircraft</h2>
+            <p id="aircraftContextSummary" class="muted"></p>
+          </div>
+          <button id="aircraftBackBtn" class="btn btn-light" type="button">Back</button>
+        </div>
+
+        <div class="step-strip" aria-label="Process Steps">
+          <span class="step-chip active">1. Context</span>
+          <span class="step-chip active">2. Capture Snags</span>
+          <span class="step-chip">3. Review & Submit</span>
+        </div>
+
+        <div id="aircraftSubnav" class="aircraft-subnav">
+          <button id="openCreateSnagViewBtn" class="btn btn-primary" type="button">Create Snag</button>
+          <button id="openReviewSnagsViewBtn" class="btn btn-light" type="button">Review Snags</button>
+        </div>
+
+        <section id="createSnagView" class="aircraft-subview active-subview">
+          <div class="pane">
+            <h3>Create Snag (Offline)</h3>
+            <form id="snagForm" class="stacked-form">
+              <label>
+                Description
+                <textarea id="snagDescription" required placeholder="Describe the snag"></textarea>
+              </label>
+              <label>
+                Location
+                <input id="snagLocation" type="text" required placeholder="Frame, panel, or area reference">
+              </label>
+              <label>
+                Assigned Department
+                <select id="departmentSelect" required></select>
+              </label>
+              <div class="media-block">
+                <p class="media-title">Attach Media Before Saving Snag</p>
+                <div class="media-actions">
+                  <button id="newSnagCapturePhotoBtn" class="btn btn-light" type="button">Capture Photo</button>
+                  <button id="newSnagCaptureVideoBtn" class="btn btn-light" type="button">Capture Video</button>
+                </div>
+                <div id="newSnagMediaPreview" class="media-preview"></div>
+              </div>
+              <button class="btn btn-primary" type="submit">Add Snag</button>
+              <button id="goToReviewFromCreateBtn" class="btn btn-light" type="button">Go To Review Snags</button>
+            </form>
+          </div>
+        </section>
+
+        <section id="reviewSnagView" class="aircraft-subview hidden">
+          <div class="pane">
+            <div class="section-head tight">
+              <h3>Review Snags</h3>
+              <button id="submitSnagsBtn" class="btn btn-accent" type="button">Submit / Upload</button>
+            </div>
+
+            <div class="action-row">
+              <button id="goToCreateFromReviewBtn" class="btn btn-light" type="button">Back To Create Snag</button>
+            </div>
+
+            <div class="filters">
+              <label>
+                Filter Zone
+                <select id="filterZone"></select>
+              </label>
+              <label>
+                Filter Milestone
+                <select id="filterMilestone"></select>
+              </label>
+              <label>
+                Filter Department
+                <select id="filterDepartment"></select>
+              </label>
+            </div>
+
+            <div id="snagList" class="snag-list"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <template id="snagTemplate">
+    <article class="snag-card">
+      <div class="snag-head">
+        <div>
+          <h4 class="snag-id"></h4>
+          <p class="snag-meta"></p>
+        </div>
+        <span class="status-badge"></span>
+      </div>
+      <label>
+        Description
+        <textarea class="edit-description"></textarea>
+      </label>
+      <label>
+        Location
+        <input class="edit-location" type="text">
+      </label>
+      <label>
+        Assigned Department
+        <select class="edit-department"></select>
+      </label>
+      <div class="media-block">
+        <p class="media-title">Media & Annotation</p>
+        <div class="media-actions">
+          <button class="btn btn-light capture-photo-btn" type="button">Capture Photo</button>
+          <button class="btn btn-light capture-video-btn" type="button">Capture Video</button>
+        </div>
+        <div class="media-preview"></div>
+      </div>
+      <div class="row-actions">
+        <button class="btn btn-light save-snag" type="button">Save Edits</button>
+      </div>
+    </article>
+  </template>
+
+  <div id="annotationModal" class="annotation-modal hidden" role="dialog" aria-modal="true" aria-labelledby="annotationTitle">
+    <div class="annotation-panel">
+      <div class="section-head tight">
+        <h3 id="annotationTitle">Annotate Image</h3>
+        <button id="closeAnnotationBtn" class="btn btn-light" type="button">Close</button>
+      </div>
+      <div class="annotation-toolbar">
+        <button class="btn btn-light annotation-tool" data-tool="arrow" type="button">Arrow</button>
+        <button class="btn btn-light annotation-tool" data-tool="circle" type="button">Circle</button>
+        <button class="btn btn-light annotation-tool" data-tool="text" type="button">Text</button>
+        <input id="annotationTextInput" type="text" placeholder="Text label">
+      </div>
+      <canvas id="annotationCanvas" width="1200" height="760"></canvas>
+      <div class="guidance-actions">
+        <button id="saveAnnotationBtn" class="btn btn-primary" type="button">Save Annotation</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="cameraModal" class="annotation-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cameraTitle">
+    <div class="annotation-panel">
+      <div class="section-head tight">
+        <h3 id="cameraTitle">Camera Capture</h3>
+        <button id="closeCameraBtn" class="btn btn-light" type="button">Close</button>
+      </div>
+      <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+      <div class="camera-actions">
+        <button id="takePhotoBtn" class="btn btn-primary" type="button">Take Photo</button>
+        <button id="startVideoRecordBtn" class="btn btn-primary" type="button">Start Recording</button>
+        <button id="stopVideoRecordBtn" class="btn btn-accent hidden" type="button">Stop Recording</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
