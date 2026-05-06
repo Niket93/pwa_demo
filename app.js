@@ -631,9 +631,7 @@ const APP = {
       if (media.captureMeta?.finalBytes) {
         const captureCaption = document.createElement("p");
         captureCaption.className = "media-caption";
-        const savedText = media.captureMeta.savingsBytes > 0
-          ? `, saved ${media.captureMeta.savingsPercent}%`
-          : "";
+        const savedText = `, saved ${media.captureMeta.savingsPercent}%`;
         captureCaption.textContent = `Captured ${media.captureMeta.mode} at ${this.formatBytes(media.captureMeta.finalBytes)}${savedText}`;
         item.appendChild(captureCaption);
       }
@@ -852,9 +850,7 @@ const APP = {
       if (media.captureMeta?.finalBytes) {
         const captureCaption = document.createElement("p");
         captureCaption.className = "media-caption";
-        const savedText = media.captureMeta.savingsBytes > 0
-          ? `, saved ${media.captureMeta.savingsPercent}%`
-          : "";
+        const savedText = `, saved ${media.captureMeta.savingsPercent}%`;
         captureCaption.textContent = `Captured ${media.captureMeta.mode} at ${this.formatBytes(media.captureMeta.finalBytes)}${savedText}`;
         item.appendChild(captureCaption);
       }
@@ -946,9 +942,7 @@ const APP = {
 
     if (result) {
       const modeText = result.mode === "optimized" ? "Storage-Optimized" : "Native";
-      const savedPart = result.savingsBytes > 0
-        ? ` Saved ${this.formatBytes(result.savingsBytes)} (${result.savingsPercent}%).`
-        : "";
+      const savedPart = ` Saved ${this.formatBytes(result.savingsBytes)} (${result.savingsPercent}%).`;
       this.el.captureSizeInfo.textContent = `${modeText} capture: ${this.formatBytes(result.finalBytes)}.${savedPart}`;
       return;
     }
