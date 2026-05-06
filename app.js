@@ -21,6 +21,7 @@ const APP = {
     camera: {
       stream: null,
       mode: "photo",
+      storageOptimized: false,
       targetSnagId: null,
       recorder: null,
       recordedChunks: []
@@ -117,6 +118,9 @@ const APP = {
     this.el.takePhotoBtn = document.getElementById("takePhotoBtn");
     this.el.startVideoRecordBtn = document.getElementById("startVideoRecordBtn");
     this.el.stopVideoRecordBtn = document.getElementById("stopVideoRecordBtn");
+    this.el.storageModeToggle = document.getElementById("storageModeToggle");
+    this.el.cameraStorageRow = document.getElementById("cameraStorageRow");
+    this.el.captureSizeInfo = document.getElementById("captureSizeInfo");
   },
 
   bindEvents() {
@@ -167,6 +171,7 @@ const APP = {
     this.el.takePhotoBtn.addEventListener("click", () => this.takePhoto());
     this.el.startVideoRecordBtn.addEventListener("click", () => this.startVideoRecording());
     this.el.stopVideoRecordBtn.addEventListener("click", () => this.stopVideoRecording());
+    this.el.storageModeToggle.addEventListener("change", (event) => this.setStorageMode(event.target.checked));
   },
 
   route(name) {
@@ -623,6 +628,16 @@ const APP = {
         item.appendChild(caption);
       }
 
+      if (media.captureMeta?.finalBytes) {
+        const captureCaption = document.createElement("p");
+        captureCaption.className = "media-caption";
+        const savedText = media.captureMeta.savingsBytes > 0
+          ? `, saved ${media.captureMeta.savingsPercent}%`
+          : "";
+        captureCaption.textContent = `Captured ${media.captureMeta.mode} at ${this.formatBytes(media.captureMeta.finalBytes)}${savedText}`;
+        item.appendChild(captureCaption);
+      }
+
       container.appendChild(item);
     });
   },
@@ -834,6 +849,16 @@ const APP = {
         item.appendChild(video);
       }
 
+      if (media.captureMeta?.finalBytes) {
+        const captureCaption = document.createElement("p");
+        captureCaption.className = "media-caption";
+        const savedText = media.captureMeta.savingsBytes > 0
+          ? `, saved ${media.captureMeta.savingsPercent}%`
+          : "";
+        captureCaption.textContent = `Captured ${media.captureMeta.mode} at ${this.formatBytes(media.captureMeta.finalBytes)}${savedText}`;
+        item.appendChild(captureCaption);
+      }
+
       const removeBtn = document.createElement("button");
       removeBtn.className = "btn btn-light";
       removeBtn.type = "button";
@@ -859,8 +884,22 @@ const APP = {
 
     try {
       const constraints = mode === "video"
-        ? { video: { facingMode: "environment" }, audio: true }
-        : { video: { facingMode: "environment" }, audio: false };
+        ? {
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: true
+        }
+        : {
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       this.state.camera.stream = stream;
       this.el.cameraVideo.srcObject = stream;
@@ -869,6 +908,8 @@ const APP = {
       this.el.takePhotoBtn.classList.toggle("hidden", mode !== "photo");
       this.el.startVideoRecordBtn.classList.toggle("hidden", mode !== "video");
       this.el.stopVideoRecordBtn.classList.add("hidden");
+      this.el.cameraStorageRow.classList.toggle("hidden", mode !== "photo");
+      this.updateStorageModeUI();
       this.el.cameraModal.classList.remove("hidden");
     } catch (error) {
       console.error(error);
@@ -890,24 +931,153 @@ const APP = {
     this.el.cameraModal.classList.add("hidden");
     this.state.camera.recordedChunks = [];
     this.state.camera.recorder = null;
+    this.updateStorageModeUI();
+  },
+
+  setStorageMode(enabled) {
+    this.state.camera.storageOptimized = Boolean(enabled);
+    this.updateStorageModeUI();
+  },
+
+  updateStorageModeUI(result = null) {
+    if (!this.el.storageModeToggle || !this.el.captureSizeInfo) return;
+
+    this.el.storageModeToggle.checked = this.state.camera.storageOptimized;
+
+    if (result) {
+      const modeText = result.mode === "optimized" ? "Storage-Optimized" : "Native";
+      const savedPart = result.savingsBytes > 0
+        ? ` Saved ${this.formatBytes(result.savingsBytes)} (${result.savingsPercent}%).`
+        : "";
+      this.el.captureSizeInfo.textContent = `${modeText} capture: ${this.formatBytes(result.finalBytes)}.${savedPart}`;
+      return;
+    }
+
+    if (this.state.camera.mode !== "photo") {
+      this.el.captureSizeInfo.textContent = "Storage switch applies to photo capture only.";
+      return;
+    }
+
+    this.el.captureSizeInfo.textContent = this.state.camera.storageOptimized
+      ? "Storage-Optimized ON: max 1280px and JPEG quality 60%."
+      : "Storage-Optimized OFF: native full-resolution capture.";
+  },
+
+  createFrameCanvas(video, width, height) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, width, height);
+    return canvas;
+  },
+
+  canvasToBlob(canvas, type = "image/jpeg", quality = 0.92) {
+    return new Promise((resolve) => {
+      canvas.toBlob((value) => resolve(value), type, quality);
+    });
+  },
+
+  async captureNativePhotoBlob() {
+    const track = this.state.camera.stream?.getVideoTracks?.()[0];
+    if (track && typeof ImageCapture !== "undefined") {
+      try {
+        const imageCapture = new ImageCapture(track);
+        const blob = await imageCapture.takePhoto();
+        if (blob && blob.size > 0) {
+          return {
+            blob,
+            type: blob.type || "image/jpeg"
+          };
+        }
+      } catch (error) {
+        console.warn("ImageCapture failed, falling back to canvas", error);
+      }
+    }
+
+    const video = this.el.cameraVideo;
+    const nativeWidth = video.videoWidth || 1280;
+    const nativeHeight = video.videoHeight || 720;
+    const nativeCanvas = this.createFrameCanvas(video, nativeWidth, nativeHeight);
+    const blob = await this.canvasToBlob(nativeCanvas, "image/jpeg", 0.92);
+    if (!blob) return null;
+
+    return {
+      blob,
+      type: "image/jpeg"
+    };
+  },
+
+  formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
+    const units = ["B", "KB", "MB", "GB"];
+    let value = bytes;
+    let index = 0;
+    while (value >= 1024 && index < units.length - 1) {
+      value /= 1024;
+      index += 1;
+    }
+    return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+  },
+
+  extensionForMimeType(type) {
+    const normalized = String(type || "").toLowerCase();
+    if (normalized.includes("jpeg") || normalized.includes("jpg")) return "jpg";
+    if (normalized.includes("png")) return "png";
+    if (normalized.includes("heic")) return "heic";
+    if (normalized.includes("heif")) return "heif";
+    if (normalized.includes("webp")) return "webp";
+    return "jpg";
   },
 
   async takePhoto() {
     if (!this.state.camera.stream) return;
+
     const video = this.el.cameraVideo;
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const native = await this.captureNativePhotoBlob();
+    if (!native?.blob) return;
 
-    const blob = await new Promise((resolve) => {
-      canvas.toBlob((value) => resolve(value), "image/jpeg", 0.92);
-    });
+    let finalBlob = native.blob;
+    let finalType = native.type;
+    let finalName = `photo-${Date.now()}.${this.extensionForMimeType(finalType)}`;
+    let mode = "native";
 
-    if (!blob) return;
-    await this.storeCapturedMedia(blob, "image/jpeg", `photo-${Date.now()}.jpg`);
+    if (this.state.camera.storageOptimized) {
+      const sourceWidth = video.videoWidth || 1280;
+      const sourceHeight = video.videoHeight || 720;
+      const targetWidth = Math.min(1280, sourceWidth);
+      const targetHeight = Math.max(1, Math.round((sourceHeight * targetWidth) / sourceWidth));
+      const optimizedCanvas = this.createFrameCanvas(video, targetWidth, targetHeight);
+      const optimizedBlob = await this.canvasToBlob(optimizedCanvas, "image/jpeg", 0.6);
+
+      if (optimizedBlob) {
+        finalBlob = optimizedBlob;
+        finalType = "image/jpeg";
+        finalName = `photo-optimized-${Date.now()}.jpg`;
+        mode = "optimized";
+      }
+    }
+
+    const nativeBytes = native.blob.size || 0;
+    const finalBytes = finalBlob.size || 0;
+    const savingsBytes = Math.max(0, nativeBytes - finalBytes);
+    const savingsPercent = nativeBytes > 0
+      ? Math.max(0, Math.round((savingsBytes / nativeBytes) * 100))
+      : 0;
+
+    const captureResult = {
+      mode,
+      nativeBytes,
+      finalBytes,
+      savingsBytes,
+      savingsPercent
+    };
+
+    await this.storeCapturedMedia(finalBlob, finalType, finalName, captureResult);
+    this.updateStorageModeUI(captureResult);
+    this.showOfflineReadyBanner(`Photo saved (${this.formatBytes(finalBytes)}${mode === "optimized" ? `, saved ${savingsPercent}%` : ""})`);
     this.closeCameraCapture();
+    return captureResult;
   },
 
   startVideoRecording() {
@@ -952,7 +1122,7 @@ const APP = {
     }
   },
 
-  async storeCapturedMedia(blob, type, name) {
+  async storeCapturedMedia(blob, type, name, captureMeta = null) {
     if (this.state.camera.targetSnagId) {
       await SnagDB.put(DB_STORE.media, {
         id: this.uuid(),
@@ -960,11 +1130,12 @@ const APP = {
         type,
         name,
         blob,
+        captureMeta,
         createdAt: new Date().toISOString()
       });
       await this.renderSnags();
     } else {
-      this.state.pendingNewSnagMedia.push({ type, name, blob, annotations: [] });
+      this.state.pendingNewSnagMedia.push({ type, name, blob, captureMeta, annotations: [] });
       this.renderPendingNewSnagMedia();
     }
   },

@@ -562,6 +562,33 @@ select:focus {
   margin-top: 10px;
 }
 
+.camera-storage-row {
+  margin-top: 10px;
+  border: 1px solid #313131;
+  border-radius: 10px;
+  padding: 10px;
+  background: #141414;
+}
+
+.camera-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.camera-toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  accent-color: #f0f0f0;
+}
+
+.camera-size-note {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
+
 @media (min-width: 760px) {
   .app-shell {
     padding: 20px;

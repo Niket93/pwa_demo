@@ -252,6 +252,13 @@
         <button id="closeCameraBtn" class="btn btn-light" type="button">Close</button>
       </div>
       <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+      <div id="cameraStorageRow" class="camera-storage-row">
+        <label class="camera-toggle" for="storageModeToggle">
+          <input id="storageModeToggle" type="checkbox">
+          <span>Storage-Optimized Mode (1280px / JPEG 60%)</span>
+        </label>
+        <p id="captureSizeInfo" class="muted camera-size-note">Storage-Optimized OFF: native full-resolution capture.</p>
+      </div>
       <div class="camera-actions">
         <button id="takePhotoBtn" class="btn btn-primary" type="button">Take Photo</button>
         <button id="startVideoRecordBtn" class="btn btn-primary" type="button">Start Recording</button>
